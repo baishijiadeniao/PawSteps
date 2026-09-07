@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([tokenHash])
+}
+
+model LoginAttempt {
+  id          String   @id @default(cuid())
+  identifier  String
+  failedAt    DateTime @default(now())
+
+  @@index([identifier])
+}
+
+model RehabPlanItem {
+  id              String   @id @default(cuid())
+
+  phase           String   // "PRE_OP" | "EARLY" | "MID" | "LATE"
+  name            String
+  description     String
+  category        String   // "exercise" | "scar" | "care"
+
+  targetValue     Int?
+  targetUnit      String?
+  targetSets      Int?
+  frequencyPerDay Int      @default(1)
+
+  prerequisites   String?
+  stopConditions  String?
+  notes           String?
+
+  order           Int
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  logs            RehabLog[]
+
+  @@index([phase])
+}
+
+model RehabLog {
+  id              String   @id @default(cuid())
+
+  date            String
+
+  planItemId      String?
+
+  exerciseName    String
+  targetValue     Int?
+  targetUnit      String?
+  targetSets      Int?
+
+  completedValue  Int?
+  completedSets   Int?
+
+  done            Boolean  @default(false)
+
+  note            String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  planItem        RehabPlanItem? @relation(fields: [planItemId], references: [id], onDelete: SetNull)
+
+  @@index([date])
+  @@index([planItemId])
+}
+
+model MoodLog {
+  id        String   @id @default(cuid())
+  date      String
+  mood      String   // "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS"
+  note      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+}
+
+model DailyStatus {
+  id          String   @id @default(cuid())
+  date        String   @unique
+  energy      String?  // "NORMAL" | "TIRED" | "PAINFUL" | "REST"
+  painLevel   Int?
+  swelling    Int?
+  note        String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Message {
+  id          String   @id @default(cuid())
+
+  name        String
+  content     String
+  emoji       String?
+
+  visible     Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([visible])
+}
+
+model TimelineEvent {
+  id          String   @id @default(cuid())
+
+  date        String
+  type        String   // "SURGERY" | "FOLLOW_UP" | "PLAN_CHANGE" | "MILESTONE" | "NOTE"
+  title       String
+  description String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([date])
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
