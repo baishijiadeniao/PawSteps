@@ -6,6 +6,7 @@ import { getEncouragement } from "@/lib/encouragement";
 import { RehabCardClient } from "./RehabCardClient";
 import { BottomNav } from "@/components/BottomNav";
 import { CatMascot } from "@/components/CatMascot";
+import { DailyStatusCard } from "@/components/DailyStatusCard";
 
 export default async function RehabPage() {
   const auth = await requireOwner();
@@ -34,6 +35,8 @@ export default async function RehabPage() {
           &ldquo;{getEncouragement(today)}&rdquo;
         </p>
       </header>
+
+      <DailyStatusCard />
 
       <div className="bg-peach rounded-2xl p-3 mb-4 text-center text-sm">
         今日完成 {progress.completed} / {progress.total}

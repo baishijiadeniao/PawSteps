@@ -8,6 +8,7 @@ const PROTECTED = [
   "/api/mood",
   "/api/timeline",
   "/api/settings",
+  "/api/daily-status",
 ];
 
 const PUBLIC_EXACT = new Set(["/", "/wall", "/login"]);
