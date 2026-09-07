@@ -81,14 +81,12 @@ model RehabLog {
 
 model MoodLog {
   id        String   @id @default(cuid())
-  date      String
+  date      String   @unique
   mood      String   // "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS"
   note      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([date])
 }
 
 model DailyStatus {
