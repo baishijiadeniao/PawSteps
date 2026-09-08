@@ -6,7 +6,6 @@ const TABS = [
   { href: "/rehab", label: "打卡", emoji: "🐾" },
   { href: "/mood", label: "心情", emoji: "💭" },
   { href: "/timeline", label: "时间线", emoji: "📅" },
-  { href: "/wall", label: "留言", emoji: "💌" },
 ];
 
 export function BottomNav() {
@@ -24,7 +23,10 @@ export function BottomNav() {
               active ? "text-ragdoll" : "text-cocoa/50"
             }`}
           >
-            <span className="text-xl" aria-hidden="true">
+            <span
+              className={`text-xl ${active ? "animate-nav-bounce" : ""}`}
+              aria-hidden="true"
+            >
               {tab.emoji}
             </span>
             <span className="text-xs">{tab.label}</span>

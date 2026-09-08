@@ -7,11 +7,12 @@ const PROTECTED = [
   "/api/rehab",
   "/api/mood",
   "/api/timeline",
+  "/api/calendar",
   "/api/settings",
   "/api/daily-status",
 ];
 
-const PUBLIC_EXACT = new Set(["/", "/wall", "/login"]);
+const PUBLIC_EXACT = new Set(["/", "/login"]);
 
 function isProtected(pathname: string): boolean {
   if (PUBLIC_EXACT.has(pathname)) return false;

@@ -1,16 +1,16 @@
-import Link from "next/link";
 import { prismaClient } from "@/lib/prisma";
 import { getToday, getPostOpDay, getSurgeryDate } from "@/lib/date";
 import { getRehabPhase, PHASE_LABELS } from "@/lib/phase";
 import { getEncouragement } from "@/lib/encouragement";
-import { CatMascot } from "@/components/CatMascot";
+import { CatMascot, type CatMood } from "@/components/CatMascot";
+import { EncouragementTypewriter } from "@/components/EncouragementTypewriter";
 
-const MOOD_LABEL: Record<string, { emoji: string; label: string }> = {
-  GREAT: { emoji: "😻", label: "棒极了" },
-  GOOD: { emoji: "😺", label: "还不错" },
-  OK: { emoji: "😸", label: "还行" },
-  DOWN: { emoji: "🙀", label: "有点糟" },
-  ANXIOUS: { emoji: "😿", label: "焦虑了" },
+const MOOD_LABEL: Record<string, { catMood: CatMood; label: string }> = {
+  GREAT: { catMood: "GREAT", label: "棒极了" },
+  GOOD: { catMood: "GOOD", label: "还不错" },
+  OK: { catMood: "OKAY", label: "还行" },
+  DOWN: { catMood: "DOWN", label: "有点糟" },
+  ANXIOUS: { catMood: "ANXIOUS", label: "焦虑了" },
 };
 
 export default async function Home() {
@@ -41,8 +41,8 @@ export default async function Home() {
         <h1 className="text-2xl font-bold mt-2">十一的康复小窝</h1>
       </header>
 
-      <section className="bg-peach rounded-2xl p-5 mb-4 text-center">
-        <p className="text-3xl font-bold">
+      <section className="bg-peach rounded-2xl p-5 mb-4 text-center animate-fade-in-up">
+        <p className="text-3xl font-bold animate-pop-in">
           {pod < 0
             ? `术前 ${Math.abs(pod)} 天`
             : pod === 0
@@ -50,16 +50,20 @@ export default async function Home() {
               : `术后第 ${pod} 天`}
         </p>
         <p className="text-sm opacity-70 mt-1">{PHASE_LABELS[phase]}</p>
-        <p className="text-sm mt-3 italic text-ragdoll">
-          &ldquo;{encouragement}&rdquo;
-        </p>
+        <EncouragementTypewriter text={encouragement} />
       </section>
 
       {todayMood && (
-        <section className="bg-white rounded-2xl p-4 mb-4 text-center">
+        <section
+          className="bg-white rounded-2xl p-4 mb-4 text-center animate-fade-in-up"
+          style={{ animationDelay: "90ms" }}
+        >
           <p className="text-xs opacity-60 mb-1">十一今天</p>
-          <p className="text-2xl">
-            {MOOD_LABEL[todayMood.mood]?.emoji}{" "}
+          <p className="flex items-center justify-center gap-2">
+            <CatMascot
+              mood={MOOD_LABEL[todayMood.mood]?.catMood || "NORMAL"}
+              size={40}
+            />
             <span className="text-base">
               {MOOD_LABEL[todayMood.mood]?.label}
             </span>
@@ -67,24 +71,14 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="bg-coral/20 rounded-2xl p-4 mb-4">
+      <section
+        className="bg-coral/20 rounded-2xl p-4 mb-4 animate-fade-in-up"
+        style={{ animationDelay: "180ms" }}
+      >
         <p className="text-sm font-bold mb-2">🌱 今日康复</p>
         <p className="text-sm">
           {doneLogs} / {items.length}
         </p>
-      </section>
-
-      <section className="bg-peach rounded-2xl p-4">
-        <p className="text-sm font-bold mb-2">💌 给十一的鼓励</p>
-        <p className="text-sm opacity-70 mb-3">
-          留下你的话，让她知道有人陪着。
-        </p>
-        <Link
-          href="/wall"
-          className="block w-full py-3 text-center rounded-xl bg-ragdoll text-white text-sm"
-        >
-          留下一句话 →
-        </Link>
       </section>
     </main>
   );

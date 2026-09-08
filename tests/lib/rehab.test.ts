@@ -7,6 +7,34 @@ import {
 
 beforeEach(async () => {
   await prismaClient.rehabLog.deleteMany();
+  await prismaClient.rehabPlanItem.deleteMany();
+  // 测试库不再依赖种子数据，自行构造 EARLY 阶段动作
+  await prismaClient.rehabPlanItem.createMany({
+    data: [
+      {
+        phase: "EARLY",
+        name: "踝泵运动",
+        description: "防血栓消肿胀",
+        category: "exercise",
+        targetValue: 100,
+        targetUnit: "次",
+        targetSets: 1,
+        frequencyPerDay: 1,
+        order: 1,
+      },
+      {
+        phase: "EARLY",
+        name: "冰敷",
+        description: "15-20 分钟消肿",
+        category: "care",
+        targetValue: 3,
+        targetUnit: "次",
+        targetSets: 1,
+        frequencyPerDay: 1,
+        order: 2,
+      },
+    ],
+  });
   vi.stubEnv("SURGERY_DATE", "2026-09-09");
   vi.stubEnv("APP_TIMEZONE", "Asia/Shanghai");
 });

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { DesktopPet } from "@/components/DesktopPet";
 
 export const metadata: Metadata = {
   title: "十一的康复小窝",
@@ -20,7 +21,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className="min-h-screen bg-cream text-cocoa">{children}</body>
+      <body className="min-h-screen bg-cream text-cocoa">
+        {children}
+        <DesktopPet />
+      </body>
     </html>
   );
 }

@@ -4,17 +4,6 @@ export const loginSchema = z.object({
   code: z.string().min(1, "请输入访问码").max(100),
 });
 
-export const messageSchema = z.object({
-  name: z.string().min(1, "昵称不能为空").max(20, "昵称最多 20 个字符"),
-  content: z
-    .string()
-    .min(1, "内容不能为空")
-    .max(300, "内容最多 300 个字符"),
-  emoji: z
-    .enum(["❤️", "🫶", "🐱", "🌷", "🌈", "💪", "🎉"])
-    .optional(),
-});
-
 export const moodSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   mood: z.enum(["GREAT", "GOOD", "OK", "DOWN", "ANXIOUS"]),

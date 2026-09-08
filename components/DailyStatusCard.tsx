@@ -55,10 +55,10 @@ export function DailyStatusCard() {
             key={e.value}
             type="button"
             onClick={() => setEnergy(e.value)}
-            className={`flex flex-col items-center py-2 rounded-lg ${
+            className={`flex flex-col items-center py-2 rounded-lg border ${
               energy === e.value
-                ? "bg-coral ring-2 ring-ragdoll"
-                : "bg-peach"
+                ? "bg-coral ring-2 ring-ragdoll border-transparent"
+                : "bg-white border-peach"
             }`}
           >
             <span className="text-xl" aria-hidden="true">

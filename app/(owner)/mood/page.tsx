@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import { MoodSelector } from "@/components/MoodSelector";
 import { BottomNav } from "@/components/BottomNav";
-import { CatMascot } from "@/components/CatMascot";
+import { CatMascot, type CatMood } from "@/components/CatMascot";
+import { useConfetti, ConfettiOverlay } from "@/components/ConfettiBurst";
 
 type Mood = "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS";
 
@@ -13,11 +14,19 @@ interface MoodLogEntry {
 }
 
 const MOOD_LABEL: Record<Mood, string> = {
-  GREAT: "😻 棒极了",
-  GOOD: "😺 还不错",
-  OK: "😸 还行",
-  DOWN: "🙀 有点糟",
-  ANXIOUS: "😿 焦虑了",
+  GREAT: "棒极了",
+  GOOD: "还不错",
+  OK: "还行",
+  DOWN: "有点糟",
+  ANXIOUS: "焦虑了",
+};
+
+const MOOD_CAT: Record<Mood, CatMood> = {
+  GREAT: "GREAT",
+  GOOD: "GOOD",
+  OK: "OKAY",
+  DOWN: "DOWN",
+  ANXIOUS: "ANXIOUS",
 };
 
 export default function MoodPage() {
@@ -26,6 +35,7 @@ export default function MoodPage() {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [history, setHistory] = useState<MoodLogEntry[]>([]);
+  const { fire, burst } = useConfetti();
 
   // 今天日期（与 lib/date.getToday 一致：Shanghai tz）
   const today = new Date().toLocaleDateString("en-CA", {
@@ -68,6 +78,7 @@ export default function MoodPage() {
     setSaving(false);
     if (res.ok) {
       setSaved(true);
+      fire();
       // 刷新历史
       const d = await fetch("/api/mood?days=7").then((r) => r.json());
       setHistory(d.logs || []);
@@ -90,17 +101,22 @@ export default function MoodPage() {
         className="w-full mt-4 p-3 rounded-2xl bg-peach border-none focus:outline-none min-h-24 resize-none"
       />
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={!selected || saving}
-        className="w-full mt-4 py-3 rounded-2xl bg-ragdoll text-white disabled:opacity-50"
-      >
-        {saving ? "保存中…" : "保存今天的心情"}
-      </button>
+      <div className="relative">
+        <ConfettiOverlay burst={burst} />
+        <button
+          type="button"
+          onClick={save}
+          disabled={!selected || saving}
+          className="w-full mt-4 py-3 rounded-2xl bg-ragdoll text-white disabled:opacity-50 transition-transform active:scale-95"
+        >
+          {saving ? "保存中…" : "保存今天的心情"}
+        </button>
+      </div>
 
       {saved && (
-        <p className="text-center mt-2 text-sm text-mint">🐱 已保存</p>
+        <p className="text-center mt-2 text-sm text-mint animate-pop-in">
+          🐱 已保存
+        </p>
       )}
 
       <section className="mt-8">
@@ -109,10 +125,13 @@ export default function MoodPage() {
           {history.map((h) => (
             <div
               key={h.date}
-              className="flex justify-between py-2 border-b border-peach text-sm"
+              className="flex justify-between items-center py-2 border-b border-peach text-sm"
             >
               <span>{h.date}</span>
-              <span>{MOOD_LABEL[h.mood] || h.mood}</span>
+              <span className="flex items-center gap-2">
+                <CatMascot mood={MOOD_CAT[h.mood] || "NORMAL"} size={28} />
+                {MOOD_LABEL[h.mood] || h.mood}
+              </span>
             </div>
           ))}
           {history.length === 0 && (

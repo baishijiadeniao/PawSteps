@@ -1,4 +1,4 @@
-const ENCORAGEMENTS = [
+export const ENCORAGEMENTS = [
   "今天不用跑得很快，走好自己的这一小步就很好。",
   "慢慢恢复也是恢复。",
   "今天的小猫也来陪你啦。",

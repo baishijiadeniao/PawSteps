@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { CatMascot } from "@/components/CatMascot";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,7 +39,9 @@ export default function LoginPage() {
     <main className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <p className="text-6xl mb-3">🐱</p>
+          <div className="mb-3">
+            <CatMascot mood="COMFORT" size={80} />
+          </div>
           <h1 className="text-2xl font-bold">十一的康复小窝</h1>
           <p className="text-sm mt-2 opacity-70">请输入访问码</p>
         </div>
