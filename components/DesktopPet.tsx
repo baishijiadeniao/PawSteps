@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { SittingCat } from "./SittingCat";
-import type { CatMood } from "./CatMascot";
+import { CatMascot, type CatMood } from "./CatMascot";
 import { useConfetti, ConfettiOverlay } from "./ConfettiBurst";
 import { ENCORAGEMENTS } from "@/lib/encouragement";
 
@@ -236,9 +235,7 @@ export function DesktopPet() {
           </div>
         )}
         <ConfettiOverlay burst={burst} />
-        <div className={dragging ? "" : "animate-float"}>
-          <SittingCat mood={mood} size={72} />
-        </div>
+        <CatMascot mood={mood} size={72} />
       </div>
     </div>
   );

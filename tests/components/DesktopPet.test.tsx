@@ -22,7 +22,7 @@ describe("DesktopPet", () => {
     render(<DesktopPet />);
     const pet = getPet();
     expect(pet.className).toContain("fixed");
-    expect(pet.querySelector("svg")).toBeInTheDocument();
+    expect(pet.querySelector("img")).toBeInTheDocument();
     // 默认贴右下角
     expect(pet.style.right).toBe("1rem");
   });
