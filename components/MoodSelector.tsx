@@ -1,17 +1,25 @@
 "use client";
-import { CatMascot } from "./CatMascot";
 
 interface MoodSelectorProps {
   selected: string | null;
   onSelect: (mood: "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS") => void;
 }
 
+// 十一的 5 张手绘贴纸（裁剪自 picture/5.jpg），与心情档位一一对应
+export const MOOD_STICKERS: Record<"GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS", string> = {
+  GREAT: "/cats/moods/great.png",
+  GOOD: "/cats/moods/good.png",
+  OK: "/cats/moods/okay.png",
+  DOWN: "/cats/moods/down.png",
+  ANXIOUS: "/cats/moods/anxious.png",
+};
+
 const MOODS = [
-  { value: "GREAT", catMood: "GREAT", label: "棒极了" },
-  { value: "GOOD", catMood: "GOOD", label: "还不错" },
-  { value: "OK", catMood: "OKAY", label: "还行" },
-  { value: "DOWN", catMood: "DOWN", label: "有点糟" },
-  { value: "ANXIOUS", catMood: "ANXIOUS", label: "焦虑了" },
+  { value: "GREAT", label: "棒极了" },
+  { value: "GOOD", label: "还不错" },
+  { value: "OK", label: "还行" },
+  { value: "DOWN", label: "有点糟" },
+  { value: "ANXIOUS", label: "焦虑了" },
 ] as const;
 
 export function MoodSelector({ selected, onSelect }: MoodSelectorProps) {
@@ -30,7 +38,7 @@ export function MoodSelector({ selected, onSelect }: MoodSelectorProps) {
           }`}
         >
           <span className={selected === m.value ? "animate-tap" : ""}>
-            <CatMascot mood={m.catMood} size={44} />
+            <img src={MOOD_STICKERS[m.value]} alt="" width={44} height={44} className="object-contain" draggable={false} />
           </span>
           <span className="text-xs mt-1">{m.label}</span>
         </button>

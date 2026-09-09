@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { MoodSelector } from "@/components/MoodSelector";
+import { MoodSelector, MOOD_STICKERS } from "@/components/MoodSelector";
 import { BottomNav } from "@/components/BottomNav";
-import { CatMascot, type CatMood } from "@/components/CatMascot";
+import { CatMascot } from "@/components/CatMascot";
 import { useConfetti, ConfettiOverlay } from "@/components/ConfettiBurst";
 
 type Mood = "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS";
@@ -129,7 +129,7 @@ export default function MoodPage() {
             >
               <span>{h.date}</span>
               <span className="flex items-center gap-2">
-                <CatMascot mood={MOOD_CAT[h.mood] || "NORMAL"} size={28} />
+                <img src={MOOD_STICKERS[h.mood]} alt="" width={28} height={28} className="object-contain" />
                 {MOOD_LABEL[h.mood] || h.mood}
               </span>
             </div>
