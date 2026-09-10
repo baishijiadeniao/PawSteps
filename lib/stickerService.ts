@@ -86,14 +86,18 @@ async function loadHabitData(): Promise<HabitData> {
   };
 }
 
-/** 保证初始 4 张陪伴贴纸始终处于解锁状态 */
+/** 保证初始贴纸（4 张陪伴 + 23 张日常表情包）始终处于解锁状态 */
 export async function ensureStarterStickers(): Promise<void> {
-  // SQLite 不支持 createMany 的 skipDuplicates，逐条 upsert
+  // 每次访问收集册都会跑一遍，先查缺再补写，避免重复写入
+  const existing = await prismaClient.stickerUnlock.findMany({
+    where: { sticker: { in: STARTER_STICKERS } },
+    select: { sticker: true },
+  });
+  const has = new Set(existing.map((r) => r.sticker));
   for (const sticker of STARTER_STICKERS) {
-    await prismaClient.stickerUnlock.upsert({
-      where: { sticker },
-      update: {},
-      create: { sticker, reason: "初始贴纸" },
+    if (has.has(sticker)) continue;
+    await prismaClient.stickerUnlock.create({
+      data: { sticker, reason: "初始贴纸" },
     });
   }
 }
@@ -112,7 +116,6 @@ export async function getUnlockedNames(): Promise<StickerName[]> {
  * 返回本次新解锁的贴纸（已解锁过的不会重复返回）。
  */
 export async function refreshUnlocks(): Promise<UnlockResult[]> {
-  await ensureStarterStickers();
   const alreadyUnlocked = await getUnlockedNames();
   const data = await loadHabitData();
   const newly = evaluateUnlocks({
@@ -133,7 +136,7 @@ export async function refreshUnlocks(): Promise<UnlockResult[]> {
   return newly;
 }
 
-/** 收集册完整数据：16 格 + 本次新解锁列表 */
+/** 收集册完整数据：39 格 + 本次新解锁列表 */
 export async function getCollection(): Promise<{
   items: CollectionItem[];
   newlyUnlocked: UnlockResult[];

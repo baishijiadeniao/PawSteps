@@ -133,7 +133,7 @@ describe("evaluateUnlocks", () => {
     expect(res).toEqual([]);
   });
 
-  it("初始 4 张贴纸从不出现在解锁结果里", () => {
+  it("初始贴纸从不出现在解锁结果里", () => {
     const res = evaluateUnlocks(
       makeInput({
         checkinDates: ["2026-09-10"],

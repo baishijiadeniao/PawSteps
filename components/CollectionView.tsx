@@ -1,11 +1,10 @@
-import { stickerSrc, type StickerName } from "@/lib/stickerPop";
-import { formatDate } from "@/lib/date";
+import { CollectionGrid } from "@/components/CollectionGrid";
 import type { CollectionItem } from "@/lib/stickerService";
 
 /**
- * 表情收集册：16 宫格布偶猫贴纸。
- * - 已解锁：彩色贴纸 + 中文名 + 解锁日期；
- * - 未解锁：灰色剪影 + "？" + 解锁条件提示。
+ * 表情收集册：布偶猫贴纸宫格。
+ * 格子里只有贴纸图（不放文字），点击后由 CollectionGrid 的预览层
+ * 展示名字、解锁信息和下载入口。
  * 纯展示组件（服务端渲染），数据来自 /api/stickers 同一套 getCollection。
  */
 export function CollectionView({ items }: { items: CollectionItem[] }) {
@@ -31,50 +30,7 @@ export function CollectionView({ items }: { items: CollectionItem[] }) {
         </p>
       </div>
 
-      {/* 16 宫格 */}
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-        {items.map((item) => (
-          <StickerCell key={item.sticker} item={item} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function StickerCell({ item }: { item: CollectionItem }) {
-  const src = stickerSrc(item.sticker as StickerName);
-  return (
-    <div
-      className={`rounded-2xl border p-2 text-center ${
-        item.unlocked
-          ? "bg-white border-peach"
-          : "bg-cocoa/5 border-dashed border-cocoa/20"
-      }`}
-    >
-      <div className="relative mx-auto h-20 w-20">
-        <img
-          src={src}
-          alt={item.unlocked ? item.label : "未解锁的贴纸"}
-          className={`h-full w-full object-contain ${
-            item.unlocked ? "" : "opacity-20 [filter:brightness(0)]"
-          }`}
-        />
-        {!item.unlocked && (
-          <span className="absolute inset-0 flex items-center justify-center text-2xl font-fun text-cocoa/40">
-            ？
-          </span>
-        )}
-      </div>
-      {item.unlocked ? (
-        <>
-          <p className="text-xs font-bold mt-1 truncate">{item.label}</p>
-          <p className="text-[10px] opacity-50">
-            {item.unlockedAt ? `${formatDate(item.unlockedAt.slice(0, 10))} 解锁` : "已解锁"}
-          </p>
-        </>
-      ) : (
-        <p className="text-[10px] opacity-50 mt-1 leading-snug">{item.how}</p>
-      )}
+      <CollectionGrid items={items} />
     </div>
   );
 }

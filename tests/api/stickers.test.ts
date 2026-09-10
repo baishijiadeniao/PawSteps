@@ -82,13 +82,13 @@ describe("GET /api/stickers", () => {
     expect(res.headers.get("location")).toContain("/login");
   });
 
-  it("首次访问自动落库初始 4 张，且没有新解锁", async () => {
+  it("首次访问自动落库全部初始贴纸，且没有新解锁", async () => {
     await withOwner();
     const res = await GET();
     expect(res.status).toBe(200);
     const data = await res.json();
 
-    expect(data.items).toHaveLength(16);
+    expect(data.items).toHaveLength(39);
     const unlocked = data.items.filter((i: any) => i.unlocked);
     expect(unlocked.map((i: any) => i.sticker).sort()).toEqual(
       [...STARTER_STICKERS].sort()
