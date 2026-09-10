@@ -77,9 +77,9 @@ export function TimelineForm({ onAdded }: { onAdded: () => void }) {
       {error && <p className="text-sm text-red-500">{error}</p>}
       <button
         type="submit"
-        className="w-full py-3 rounded-xl bg-ragdoll text-white"
+        className="btn-candy w-full py-3 bg-ragdoll text-white"
       >
-        添加
+        🐾 添加
       </button>
     </form>
   );

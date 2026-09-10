@@ -72,12 +72,14 @@ export default async function Home() {
       )}
 
       <section
-        className="bg-coral/20 rounded-2xl p-4 mb-4 animate-fade-in-up"
+        className="bg-coral/20 card-soft rounded-3xl p-4 mb-4 animate-fade-in-up"
         style={{ animationDelay: "180ms" }}
       >
         <p className="text-sm font-bold mb-2">🌱 今日康复</p>
-        <p className="text-sm">
-          {doneLogs} / {items.length}
+        <p className="text-2xl font-fun">
+          {doneLogs} <span className="text-sm opacity-60">/</span>{" "}
+          {items.length}
+          <span className="text-sm opacity-60"> 项</span>
         </p>
       </section>
     </main>

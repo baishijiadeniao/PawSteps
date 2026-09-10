@@ -47,24 +47,30 @@ export function DailyStatusCard() {
   if (!loaded) return null;
 
   return (
-    <div className="bg-white rounded-2xl p-4 mb-4">
-      <p className="text-sm font-bold mb-3">今天状态</p>
+    <div className="bg-white card-soft rounded-3xl p-4 mb-4">
+      <p className="text-base font-fun mb-3">今天感觉如何？</p>
       <div className="grid grid-cols-4 gap-2 mb-3">
         {ENERGIES.map((e) => (
           <button
             key={e.value}
             type="button"
             onClick={() => setEnergy(e.value)}
-            className={`flex flex-col items-center py-2 rounded-lg border ${
+            className={`flex flex-col items-center py-2.5 rounded-2xl border-2 transition-all active:scale-95 ${
               energy === e.value
-                ? "bg-coral ring-2 ring-ragdoll border-transparent"
-                : "bg-white border-peach"
+                ? "bg-coral border-ragdoll scale-105 shadow-[0_4px_10px_rgba(201,136,107,0.3)]"
+                : "bg-white border-peach hover:border-ragdoll/50"
             }`}
           >
-            <span className="text-xl" aria-hidden="true">
+            <span className="text-2xl" aria-hidden="true">
               {e.emoji}
             </span>
-            <span className="text-xs">{e.label}</span>
+            <span
+              className={`text-xs mt-0.5 ${
+                energy === e.value ? "font-bold" : "opacity-70"
+              }`}
+            >
+              {e.label}
+            </span>
           </button>
         ))}
       </div>
@@ -83,9 +89,9 @@ export function DailyStatusCard() {
         type="button"
         onClick={save}
         disabled={!energy}
-        className="w-full py-2 rounded-xl bg-ragdoll text-white text-sm disabled:opacity-50"
+        className="btn-candy w-full py-2 bg-ragdoll text-white text-sm"
       >
-        {saved ? "🐱 已保存" : "保存"}
+        {saved ? "🐱 已保存" : "保存今天的感觉"}
       </button>
     </div>
   );

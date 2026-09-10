@@ -10,6 +10,9 @@ const PROTECTED = [
   "/api/calendar",
   "/api/settings",
   "/api/daily-status",
+  "/collection",
+  "/api/stickers",
+  "/api/pet-status",
 ];
 
 const PUBLIC_EXACT = new Set(["/", "/login"]);
@@ -29,8 +32,13 @@ export function middleware(req: NextRequest) {
   // middleware 只检查 cookie 存在性，真正鉴权在 server 层
   const token = req.cookies.get("owner_session")?.value;
   if (!token) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/login";
+    // 优先 x-forwarded-host（隧道/代理场景），避免 Host 被改写后跳转到错误地址
+    const host =
+      req.headers.get("x-forwarded-host") ||
+      req.headers.get("host") ||
+      req.nextUrl.host;
+    const proto = req.headers.get("x-forwarded-proto") || "http";
+    const url = new URL(`${proto}://${host}/login`);
     url.searchParams.set("from", pathname);
     return NextResponse.redirect(url);
   }

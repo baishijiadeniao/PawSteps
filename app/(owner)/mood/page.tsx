@@ -2,8 +2,9 @@
 import { useState, useEffect } from "react";
 import { MoodSelector, MOOD_STICKERS } from "@/components/MoodSelector";
 import { BottomNav } from "@/components/BottomNav";
-import { CatMascot } from "@/components/CatMascot";
+import { CatMascot, type CatMood } from "@/components/CatMascot";
 import { useConfetti, ConfettiOverlay } from "@/components/ConfettiBurst";
+import { popSticker } from "@/lib/stickerPop";
 
 type Mood = "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS";
 
@@ -79,6 +80,7 @@ export default function MoodPage() {
     if (res.ok) {
       setSaved(true);
       fire();
+      popSticker(selected); // 按心情档位弹一张陪伴贴纸
       // 刷新历史
       const d = await fetch("/api/mood?days=7").then((r) => r.json());
       setHistory(d.logs || []);
@@ -107,7 +109,7 @@ export default function MoodPage() {
           type="button"
           onClick={save}
           disabled={!selected || saving}
-          className="w-full mt-4 py-3 rounded-2xl bg-ragdoll text-white disabled:opacity-50 transition-transform active:scale-95"
+          className="btn-candy w-full mt-4 py-3 bg-ragdoll text-white text-base"
         >
           {saving ? "保存中…" : "保存今天的心情"}
         </button>

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { TimelineForm } from "./TimelineForm";
-import { formatDate } from "@/lib/date";
+import { formatDate, getPostOpDay } from "@/lib/date";
 
 type Mood = "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS";
 
@@ -97,6 +97,13 @@ function weekdayName(dateStr: string): string {
   return WEEKDAY_NAMES[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
 }
 
+// 术后天数文案（与康复页口径一致）
+function dayLabel(pod: number): string {
+  if (pod < 0) return `术前 ${Math.abs(pod)} 天`;
+  if (pod === 0) return "手术当天";
+  return `术后第 ${pod} 天`;
+}
+
 export function CalendarView({ surgeryDate }: { surgeryDate: string }) {
   const [today] = useState(() =>
     new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Shanghai" })
@@ -147,6 +154,10 @@ export function CalendarView({ surgeryDate }: { surgeryDate: string }) {
   const selRehab = selected ? rehabByDate.get(selected) : undefined;
   const selEvents = selected ? eventsByDate.get(selected) : undefined;
 
+  // 今天是康复的第几天；选中日期对应的术后天数
+  const todayPod = getPostOpDay(today, surgeryDate);
+  const selPod = selected ? getPostOpDay(selected, surgeryDate) : null;
+
   return (
     <div>
       {/* 月份切换 */}
@@ -168,6 +179,13 @@ export function CalendarView({ surgeryDate }: { surgeryDate: string }) {
         >
           →
         </button>
+      </div>
+
+      {/* 今天是康复的第几天 */}
+      <div className="text-center mb-2">
+        <span className="inline-block text-xs bg-coral/40 rounded-full px-3 py-1">
+          🐾 今天是{dayLabel(todayPod)}
+        </span>
       </div>
 
       {/* 星期表头 */}
@@ -246,7 +264,7 @@ export function CalendarView({ surgeryDate }: { surgeryDate: string }) {
       {selected && (
         <div
           key={selected}
-          className="animate-fade-in-up bg-white rounded-2xl p-4 mt-4"
+          className="animate-fade-in-up bg-white card-soft rounded-3xl p-4 mt-4"
         >
           <p className="font-bold mb-3">
             {formatDate(selected)} {weekdayName(selected)}
@@ -254,6 +272,9 @@ export function CalendarView({ surgeryDate }: { surgeryDate: string }) {
               <span className="ml-2 text-xs bg-coral px-2 py-0.5 rounded-full">
                 手术日
               </span>
+            )}
+            {selPod != null && selPod > 0 && (
+              <span className="ml-2 text-xs opacity-60">{dayLabel(selPod)}</span>
             )}
           </p>
 
@@ -321,7 +342,7 @@ export function CalendarView({ surgeryDate }: { surgeryDate: string }) {
       <button
         type="button"
         onClick={() => setShowForm(!showForm)}
-        className="w-full py-3 mt-4 rounded-xl bg-coral text-cocoa text-sm"
+        className="btn-candy w-full py-3 mt-4 bg-coral text-cocoa text-sm"
       >
         {showForm ? "取消" : "+ 添加事件"}
       </button>

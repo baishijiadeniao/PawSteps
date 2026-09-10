@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { timingSafeEqual } from "crypto";
 import { findValidSession, createSession, deleteSession } from "./session";
 import {
@@ -64,14 +64,19 @@ export async function requireOwner(): Promise<
 > {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  // 跳转时优先 x-forwarded-host（隧道/代理场景），避免 Host 被改写后跳转到错误地址
+  const redirectToLogin = async (): Promise<Response> => {
+    const h = await headers();
+    const host = h.get("x-forwarded-host") || h.get("host") || "localhost:8080";
+    const proto = h.get("x-forwarded-proto") || "http";
+    return Response.redirect(new URL("/login", `${proto}://${host}`), 307);
+  };
   if (!token) {
-    return { redirect: Response.redirect(new URL("/login", baseUrl), 307) };
+    return { redirect: await redirectToLogin() };
   }
   const ok = await verifyOwnerSession(token);
   if (!ok) {
-    return { redirect: Response.redirect(new URL("/login", baseUrl), 307) };
+    return { redirect: await redirectToLogin() };
   }
   return { ok: true };
 }

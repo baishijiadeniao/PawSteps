@@ -36,7 +36,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm card-soft bg-white rounded-3xl p-6 pb-8">
         <div className="text-center mb-8">
           {/* 十一从上方倒挂偷看 */}
           <div className="flex justify-center mb-3 -mt-2">
@@ -49,7 +49,7 @@ export default function LoginPage() {
               style={{ width: 120, height: "auto" }}
             />
           </div>
-          <h1 className="text-2xl font-bold">十一的康复小窝</h1>
+          <h1 className="text-3xl font-fun">十一的康复小窝</h1>
           <p className="text-sm mt-2 opacity-70">请输入访问码</p>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
@@ -58,7 +58,7 @@ export default function LoginPage() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="访问码"
-            className="w-full px-4 py-3 rounded-2xl border border-peach bg-white focus:outline-none focus:border-ragdoll"
+            className="w-full px-5 py-3 rounded-full border-2 border-peach bg-white text-cocoa placeholder:text-cocoa/35 focus:outline-none focus:border-ragdoll transition-colors"
             autoFocus
           />
           {error && (

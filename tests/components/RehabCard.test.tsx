@@ -25,13 +25,18 @@ const mockItem = {
 };
 
 describe("RehabCard", () => {
-  it("renders exercise name and target", () => {
+  it("renders exercise name and target chip", () => {
     render(<RehabCard item={mockItem as any} onToggle={() => {}} />);
     expect(screen.getByText("股四头肌等长收缩")).toBeInTheDocument();
-    expect(screen.getByText(/目标：30 次 × 3 组/)).toBeInTheDocument();
+    expect(screen.getByText("30 次 × 3 组")).toBeInTheDocument();
   });
 
-  it("shows complete button when not done", () => {
+  it("renders light description text", () => {
+    render(<RehabCard item={mockItem as any} onToggle={() => {}} />);
+    expect(screen.getByText("维持肌力")).toBeInTheDocument();
+  });
+
+  it("shows check-in circle button when not done", () => {
     render(<RehabCard item={mockItem as any} onToggle={() => {}} />);
     expect(
       screen.getByRole("button", { name: /完成打卡/ })

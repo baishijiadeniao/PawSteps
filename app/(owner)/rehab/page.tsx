@@ -1,9 +1,9 @@
 import { requireOwner } from "@/lib/auth";
-import { getTodayTasks, calculateDailyProgress } from "@/lib/rehab";
+import { getTodayTasks } from "@/lib/rehab";
 import { getToday, getPostOpDay, getSurgeryDate } from "@/lib/date";
 import { getRehabPhase, PHASE_LABELS } from "@/lib/phase";
 import { getEncouragement } from "@/lib/encouragement";
-import { RehabCardClient } from "./RehabCardClient";
+import { RehabTaskList } from "@/components/RehabTaskList";
 import { BottomNav } from "@/components/BottomNav";
 import { CatMascot } from "@/components/CatMascot";
 import { DailyStatusCard } from "@/components/DailyStatusCard";
@@ -16,7 +16,6 @@ export default async function RehabPage() {
   const pod = getPostOpDay(today, getSurgeryDate());
   const phase = getRehabPhase(pod);
   const tasks = await getTodayTasks();
-  const progress = await calculateDailyProgress(today, tasks);
 
   return (
     <main className="min-h-screen pb-24 px-4 py-6">
@@ -38,26 +37,13 @@ export default async function RehabPage() {
 
       <DailyStatusCard />
 
-      <div className="bg-peach rounded-2xl p-3 mb-4 text-center text-sm">
-        今日完成 {progress.completed} / {progress.total}
-      </div>
+      <RehabTaskList items={tasks} />
 
-      <div className="space-y-3">
-        {tasks.map((item) => (
-          <RehabCardClient key={item.id} item={item} />
-        ))}
-      </div>
-
-      {tasks.length === 0 && (
-        <div className="text-center py-12">
-          <CatMascot mood="REST" size={64} />
-          <p className="mt-4 text-sm opacity-70">今天暂无任务，好好休息。</p>
-        </div>
-      )}
-
-      <div className="mt-8 p-4 bg-coral/20 rounded-2xl text-sm">
-        <p className="font-bold mb-2">⚠️ 出现这些情况请先停下</p>
-        <p className="opacity-80">
+      <details className="mt-8 p-4 bg-coral/15 rounded-3xl text-sm">
+        <summary className="font-bold cursor-pointer">
+          ⚠️ 出现这些情况请先停下
+        </summary>
+        <p className="opacity-80 mt-2">
           如果出现明显异常，不要因为今天的任务继续坚持。
           请优先遵循医生和康复师指导，必要时联系医疗机构。
         </p>
@@ -69,7 +55,7 @@ export default async function RehabPage() {
           <li>· 小腿明显肿痛</li>
           <li>· 呼吸困难/胸痛等紧急情况</li>
         </ul>
-      </div>
+      </details>
 
       <BottomNav />
     </main>

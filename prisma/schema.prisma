@@ -136,3 +136,10 @@ model AppSetting {
   value     String
   updatedAt DateTime @updatedAt
 }
+
+model StickerUnlock {
+  id         String   @id @default(cuid())
+  sticker    String   @unique // 贴纸文件名（public/stickers/xxx.png 的 xxx）
+  reason     String            // 解锁原因文案
+  unlockedAt DateTime @default(now())
+}

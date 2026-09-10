@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useConfetti, ConfettiOverlay } from "./ConfettiBurst";
+import { popSticker } from "@/lib/stickerPop";
 
 interface RehabCardProps {
   item: {
@@ -25,49 +26,70 @@ const CATEGORY_EMOJI: Record<string, string> = {
 };
 
 export function RehabCard({ item, onToggle }: RehabCardProps) {
-  const [bouncing, setBouncing] = useState(false);
+  const [tapping, setTapping] = useState(false);
   const { fire, burst } = useConfetti();
 
-  const target = `目标：${item.targetValue || 0} ${item.targetUnit || ""}${
-    item.targetSets && item.targetSets > 1 ? ` × ${item.targetSets} 组` : ""
-  }`;
+  const target = [
+    item.targetValue ? `${item.targetValue} ${item.targetUnit || ""}` : null,
+    item.targetSets && item.targetSets > 1 ? `× ${item.targetSets} 组` : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   function handleToggle() {
     if (!item.done) {
-      setBouncing(true);
+      setTapping(true);
       fire();
-      setTimeout(() => setBouncing(false), 600);
+      popSticker("checkin"); // 完成打卡时弹一张鼓励贴纸
+      setTimeout(() => setTapping(false), 600);
     }
     onToggle(item.id);
   }
 
   return (
     <div
-      className={`relative rounded-2xl p-4 border-2 transition-all ${
+      className={`relative flex items-center gap-3 rounded-2xl px-4 py-3 border-2 transition-all ${
         item.done
-          ? "bg-mint/40 border-mint"
-          : "bg-peach border-transparent"
-      } ${bouncing ? "animate-bounce" : ""}`}
+          ? "bg-mint/25 border-transparent"
+          : "bg-white border-peach"
+      }`}
     >
       <ConfettiOverlay burst={burst} />
-      <div className="flex items-start gap-3">
-        <span className="text-2xl" aria-hidden="true">
-          {CATEGORY_EMOJI[item.category] || "🐾"}
-        </span>
-        <div className="flex-1">
-          <h3 className="font-bold text-base">{item.name}</h3>
-          <p className="text-sm opacity-70 mt-1">{item.description}</p>
-          <p className="text-xs mt-2 text-ragdoll">{target}</p>
+      <span className="text-2xl shrink-0" aria-hidden="true">
+        {CATEGORY_EMOJI[item.category] || "🐾"}
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3
+            className={`font-bold text-base ${
+              item.done ? "text-cocoa/50" : ""
+            }`}
+          >
+            {item.name}
+          </h3>
+          {target && (
+            <span className="text-xs bg-peach text-ragdoll px-2 py-0.5 rounded-full whitespace-nowrap">
+              {target}
+            </span>
+          )}
         </div>
+        <p className="text-xs opacity-50 mt-0.5 truncate">{item.description}</p>
       </div>
       <button
         type="button"
+        aria-label={item.done ? "已打卡" : "完成打卡"}
         onClick={handleToggle}
-        className={`mt-3 w-full py-2 rounded-xl text-sm font-medium transition-transform active:scale-95 ${
-          item.done ? "bg-mint text-cocoa" : "bg-ragdoll text-white"
+        className={`shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center text-xl font-bold transition-all active:scale-90 ${
+          tapping ? "animate-tap" : ""
+        } ${
+          item.done
+            ? "bg-mint border-mint text-cocoa shadow-[0_3px_0_rgba(92,64,51,0.12)]"
+            : "bg-white border-ragdoll/40 text-ragdoll/60 shadow-[0_3px_0_rgba(201,136,107,0.2)] hover:border-ragdoll"
         }`}
       >
-        {item.done ? "✓ 已打卡" : "完成打卡"}
+        <span key={item.done ? "done" : "todo"} className="animate-pop-in">
+          {item.done ? "✓" : "🐾"}
+        </span>
       </button>
     </div>
   );
