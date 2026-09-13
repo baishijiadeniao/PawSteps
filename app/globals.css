@@ -7,6 +7,9 @@
   --color-cocoa: #5C4033;
   --color-mint: #B5E8C9;
   --color-coral: #FFB6A3;
+  /* 暖黄：柔和的黄油色 + 稍深的蜜色，给页面补一层暖色调 */
+  --color-butter: #FFEEB8;
+  --color-honey: #E3A44B;
 
   --font-sans:
     -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto,

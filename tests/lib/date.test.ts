@@ -4,6 +4,7 @@ import {
   getPostOpDay,
   getDaysUntilSurgery,
   isFutureDate,
+  getWeekdayLabel,
 } from "@/lib/date";
 
 describe("date lib", () => {
@@ -44,5 +45,13 @@ describe("date lib", () => {
 
   it("isFutureDate: a date in the past is not future", () => {
     expect(isFutureDate("2020-01-01")).toBe(false);
+  });
+
+  it("getWeekdayLabel: 2026-09-14 是星期一", () => {
+    expect(getWeekdayLabel("2026-09-14")).toBe("星期一");
+  });
+
+  it("getWeekdayLabel: 周日边界映射到星期日", () => {
+    expect(getWeekdayLabel("2026-09-13")).toBe("星期日");
   });
 });

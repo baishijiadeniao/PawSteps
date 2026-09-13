@@ -1,48 +1,71 @@
 "use client";
+import { Check } from "lucide-react";
+import { stickerSrc, type StickerName } from "@/lib/stickerPop";
+
+export type MoodValue = "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS";
 
 interface MoodSelectorProps {
   selected: string | null;
-  onSelect: (mood: "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS") => void;
+  onSelect: (mood: MoodValue) => void;
+  /** 每个心情档位对应的贴纸：由服务端每次渲染时从"场景池 ∩ 已解锁"随机挑选 */
+  stickers: Record<MoodValue, StickerName>;
 }
 
-// 十一的 5 张手绘贴纸（裁剪自 picture/5.jpg），与心情档位一一对应
-export const MOOD_STICKERS: Record<"GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS", string> = {
-  GREAT: "/cats/moods/great.png",
-  GOOD: "/cats/moods/good.png",
-  OK: "/cats/moods/okay.png",
-  DOWN: "/cats/moods/down.png",
-  ANXIOUS: "/cats/moods/anxious.png",
-};
-
+/**
+ * label 是主文案，hint 是一行小字补充。
+ * 两者必须分属不同元素：测试用 getByText(label) 精确定位，合并写会让断言匹配不到。
+ */
 const MOODS = [
-  { value: "GREAT", label: "棒极了" },
-  { value: "GOOD", label: "还不错" },
-  { value: "OK", label: "还行" },
-  { value: "DOWN", label: "有点糟" },
-  { value: "ANXIOUS", label: "焦虑了" },
+  { value: "GREAT", label: "棒极了", hint: "心情超好" },
+  { value: "GOOD", label: "还不错", hint: "挺舒服" },
+  { value: "OK", label: "还行", hint: "平平淡淡" },
+  { value: "DOWN", label: "有点糟", hint: "不太开心" },
+  { value: "ANXIOUS", label: "焦虑了", hint: "有点紧张" },
 ] as const;
 
-export function MoodSelector({ selected, onSelect }: MoodSelectorProps) {
+export function MoodSelector({ selected, onSelect, stickers }: MoodSelectorProps) {
   return (
-    <div className="grid grid-cols-5 gap-2">
-      {MOODS.map((m) => (
-        <button
-          key={m.value}
-          type="button"
-          onClick={() => onSelect(m.value)}
-          aria-pressed={selected === m.value}
-          className={`flex flex-col items-center py-3 rounded-xl border transition-all active:scale-95 ${
-            selected === m.value
-              ? "bg-coral ring-2 ring-ragdoll border-transparent"
-              : "bg-white border-peach"
-          }`}
-        >
-          <span className={selected === m.value ? "animate-tap" : ""}>
-            <img src={MOOD_STICKERS[m.value]} alt="" width={44} height={44} className="object-contain" draggable={false} />
-          </span>
-          <span className="text-xs mt-1">{m.label}</span>
-        </button>
-      ))}
+    <div className="flex flex-wrap justify-center gap-2">
+      {MOODS.map((m) => {
+        const isSelected = selected === m.value;
+        return (
+          <button
+            key={m.value}
+            type="button"
+            onClick={() => onSelect(m.value)}
+            aria-pressed={isSelected}
+            className={`relative flex flex-col items-center gap-1 px-1 py-4 rounded-3xl border transition-all duration-150 active:scale-95 ${
+              isSelected
+                ? "bg-coral ring-2 ring-ragdoll border-transparent shadow-lg -translate-y-0.5"
+                : "bg-white border-peach hover:border-coral"
+            } w-[calc((100%-1rem)/3)]`}
+          >
+            <span className={isSelected ? "animate-tap" : ""}>
+              <img
+                src={stickerSrc(stickers[m.value])}
+                alt=""
+                width={52}
+                height={52}
+                className="object-contain"
+                draggable={false}
+              />
+            </span>
+            <span className="text-sm font-fun leading-none">{m.label}</span>
+            <span
+              className={`text-[11px] leading-none ${
+                isSelected ? "text-cocoa/70" : "text-cocoa/45"
+              }`}
+            >
+              {m.hint}
+            </span>
+            {isSelected && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-ragdoll text-white">
+                <Check size={13} strokeWidth={3} aria-hidden />
+              </span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

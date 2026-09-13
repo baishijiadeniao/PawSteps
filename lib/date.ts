@@ -42,6 +42,22 @@ export function formatDate(dateStr: string, pattern: string = "M月d日"): strin
   return format(parseISO(dateStr), pattern);
 }
 
+const WEEKDAYS = [
+  "星期日",
+  "星期一",
+  "星期二",
+  "星期三",
+  "星期四",
+  "星期五",
+  "星期六",
+] as const;
+
+/** 中文星期：2026-09-14 → 星期一（date-fns 的 EEEE 不带 locale 是英文，这里自己映射） */
+export function getWeekdayLabel(dateStr: string): string {
+  dateSchema.parse(dateStr);
+  return WEEKDAYS[parseISO(dateStr).getDay()];
+}
+
 export function isFutureDate(
   dateStr: string,
   timezone: string = env("APP_TIMEZONE", "Asia/Shanghai")
