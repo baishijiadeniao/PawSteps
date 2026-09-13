@@ -69,6 +69,33 @@ export const ALL_STICKERS = [
   "night_cuddle",
   "too_cute",
   "cool_enough",
+  // picture/联动 三张 3x3 联动表切出的 26 张贴纸（每个术后日解锁一张）
+  "kitty_heart",
+  "kitty_hug",
+  "kitty_laptop",
+  "kitty_bubble_tea",
+  "kitty_nap",
+  "kitty_costume",
+  "kitty_umbrella",
+  "kitty_pancake",
+  "kitty_pillow",
+  "linabell_wave",
+  "linabell_cuddle",
+  "linabell_detective",
+  "linabell_nap",
+  "linabell_butterfly",
+  "linabell_tea_party",
+  "linabell_kiss",
+  "linabell_trip",
+  "starry_stargazing",
+  "starry_hug",
+  "starry_sleep",
+  "starry_star",
+  "starry_box",
+  "starry_ride",
+  "starry_sunset",
+  "starry_wish",
+  "starry_cheer",
 ] as const;
 
 export type StickerName = (typeof ALL_STICKERS)[number];
@@ -123,4 +150,13 @@ export function pickSticker(
 /** 贴纸的静态资源路径 */
 export function stickerSrc(name: StickerName): string {
   return `/stickers/${name}.png`;
+}
+
+/**
+ * 从已解锁集合里随机挑一张（不区分场景，用于装饰性位置）。
+ * unlocked 为空或缺失时退回完整池，保证画面不空。
+ */
+export function pickAnyUnlocked(unlocked?: StickerName[] | null): StickerName {
+  const source = unlocked && unlocked.length > 0 ? unlocked : [...ALL_STICKERS];
+  return source[Math.floor(Math.random() * source.length)];
 }

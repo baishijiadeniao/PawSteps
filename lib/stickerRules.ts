@@ -7,6 +7,7 @@
 
 import { format, parseISO, subDays } from "date-fns";
 import { getPostOpDay } from "./date";
+import { LINK_SERIES } from "./stickerCatalog";
 import type { StickerName } from "./stickerPop";
 
 export interface StickerRuleInput {
@@ -64,6 +65,21 @@ interface StickerRule {
     postOpDay: number;
   }) => boolean;
 }
+
+/**
+ * 联动系列规则：每个系列每天解锁一张，顺序即 stickerCatalog 里系列数组的顺序。
+ *
+ * 口径：手术日算术后第 1 天，而 getPostOpDay 在手术日返回 0，
+ * 所以第 i 张（0 起）对应 postOpDay >= i。
+ * 每个系列的第 1 张是保底贴纸，术前几天也直接解锁，不等手术日。
+ */
+const LINK_RULES: StickerRule[] = LINK_SERIES.flatMap((series) =>
+  series.map((sticker, i) => ({
+    sticker,
+    reason: i === 0 ? "联动系列首张贴纸" : `到达术后第 ${i + 1} 天`,
+    satisfied: (c: { postOpDay: number }) => i === 0 || c.postOpDay >= i,
+  }))
+);
 
 const RULES: StickerRule[] = [
   {
@@ -126,6 +142,7 @@ const RULES: StickerRule[] = [
     reason: "到达术后第 90 天",
     satisfied: (c) => c.postOpDay >= 90,
   },
+  ...LINK_RULES,
 ];
 
 /**

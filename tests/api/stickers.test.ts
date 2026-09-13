@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { prismaClient } from "@/lib/prisma";
 import { createSession } from "@/lib/session";
 import { GET } from "@/app/api/stickers/route";
-import { STARTER_STICKERS } from "@/lib/stickerCatalog";
+import { STARTER_STICKERS, LINK_SERIES } from "@/lib/stickerCatalog";
 
 vi.mock("next/headers", () => ({ cookies: vi.fn(), headers: vi.fn() }));
 
@@ -82,18 +82,20 @@ describe("GET /api/stickers", () => {
     expect(res.headers.get("location")).toContain("/login");
   });
 
-  it("首次访问自动落库全部初始贴纸，且没有新解锁", async () => {
+  it("首次访问自动落库初始贴纸，并按术后天数解锁联动系列", async () => {
     await withOwner();
     const res = await GET();
     expect(res.status).toBe(200);
     const data = await res.json();
 
-    expect(data.items).toHaveLength(39);
+    expect(data.items).toHaveLength(65);
     const unlocked = data.items.filter((i: any) => i.unlocked);
+    // 手术日 09-09、今天 09-12 → 术后第 4 天，每个联动系列解锁前 4 张
+    const linkUnlocked = LINK_SERIES.flatMap((s) => s.slice(0, 4));
     expect(unlocked.map((i: any) => i.sticker).sort()).toEqual(
-      [...STARTER_STICKERS].sort()
+      [...STARTER_STICKERS, ...linkUnlocked].sort()
     );
-    expect(data.newlyUnlocked).toEqual([]);
+    expect(data.newlyUnlocked).toHaveLength(linkUnlocked.length);
 
     // 未解锁格子带获取方式文案、无解锁时间
     const locked = data.items.find((i: any) => !i.unlocked);
@@ -128,7 +130,10 @@ describe("GET /api/stickers", () => {
     await checkin(TODAY, ids); // 两条全部打勾 → 全部完成
 
     const data = await (await GET()).json();
-    const names = data.newlyUnlocked.map((u: any) => u.sticker);
+    const link: Set<string> = new Set(LINK_SERIES.flat());
+    const names = data.newlyUnlocked
+      .map((u: any) => u.sticker as string)
+      .filter((n: string) => !link.has(n));
     // 规则顺序：pat_pat 在前，shine_today 在后
     expect(names).toEqual(["pat_pat", "shine_today"]);
   });

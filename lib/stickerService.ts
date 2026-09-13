@@ -136,7 +136,7 @@ export async function refreshUnlocks(): Promise<UnlockResult[]> {
   return newly;
 }
 
-/** 收集册完整数据：39 格 + 本次新解锁列表 */
+/** 收集册完整数据：65 格 + 本次新解锁列表 */
 export async function getCollection(): Promise<{
   items: CollectionItem[];
   newlyUnlocked: UnlockResult[];

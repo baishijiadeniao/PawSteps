@@ -47,7 +47,54 @@ const DAILY_STICKERS: StickerName[] = [
   "cool_enough",
 ];
 
-/** 收集册的展示顺序（先康复成长路线，再接日常表情包） */
+/**
+ * picture/联动 三张 3x3 联动表，每张表一个系列
+ * （玲娜贝儿表的"一起来自拍"一格已剔除，不切图）。
+ * 数组顺序 = 解锁顺序：术后第 N 天解锁该系列的第 N 张。
+ */
+export const KITTY_SERIES: StickerName[] = [
+  "kitty_heart",
+  "kitty_hug",
+  "kitty_laptop",
+  "kitty_bubble_tea",
+  "kitty_nap",
+  "kitty_costume",
+  "kitty_umbrella",
+  "kitty_pancake",
+  "kitty_pillow",
+];
+
+export const LINABELL_SERIES: StickerName[] = [
+  "linabell_wave",
+  "linabell_cuddle",
+  "linabell_detective",
+  "linabell_nap",
+  "linabell_butterfly",
+  "linabell_tea_party",
+  "linabell_kiss",
+  "linabell_trip",
+];
+
+export const STARRY_SERIES: StickerName[] = [
+  "starry_stargazing",
+  "starry_hug",
+  "starry_sleep",
+  "starry_star",
+  "starry_box",
+  "starry_ride",
+  "starry_sunset",
+  "starry_wish",
+  "starry_cheer",
+];
+
+/** 全部联动系列，解锁规则按这个列表生成 */
+export const LINK_SERIES: StickerName[][] = [
+  KITTY_SERIES,
+  LINABELL_SERIES,
+  STARRY_SERIES,
+];
+
+/** 收集册的展示顺序（先康复成长路线，再接日常表情包，最后是联动系列） */
 export const STICKER_CATALOG_ORDER: StickerName[] = [
   "you_are_the_best",
   "cheer_cheer",
@@ -66,6 +113,9 @@ export const STICKER_CATALOG_ORDER: StickerName[] = [
   "super_brave",
   "better_today",
   ...DAILY_STICKERS,
+  ...KITTY_SERIES,
+  ...LINABELL_SERIES,
+  ...STARRY_SERIES,
 ];
 
 export const STICKER_CATALOG: Record<StickerName, StickerCatalogEntry> = {
@@ -108,9 +158,38 @@ export const STICKER_CATALOG: Record<StickerName, StickerCatalogEntry> = {
   night_cuddle: { label: "晚安啦", how: "开箱即用" },
   too_cute: { label: "可爱爆了", how: "开箱即用" },
   cool_enough: { label: "我够酷了吗", how: "开箱即用" },
+  // Hello Kitty x 布偶猫
+  kitty_heart: { label: "一起捧爱心", how: "术后第 1 天解锁 · Hello Kitty 联动" },
+  kitty_hug: { label: "凯蒂抱抱", how: "术后第 2 天解锁 · Hello Kitty 联动" },
+  kitty_laptop: { label: "一起上网", how: "术后第 3 天解锁 · Hello Kitty 联动" },
+  kitty_bubble_tea: { label: "一起喝奶茶", how: "术后第 4 天解锁 · Hello Kitty 联动" },
+  kitty_nap: { label: "一起打盹", how: "术后第 5 天解锁 · Hello Kitty 联动" },
+  kitty_costume: { label: "穿上萌睡衣", how: "术后第 6 天解锁 · Hello Kitty 联动" },
+  kitty_umbrella: { label: "共撑一把伞", how: "术后第 7 天解锁 · Hello Kitty 联动" },
+  kitty_pancake: { label: "松饼时间", how: "术后第 8 天解锁 · Hello Kitty 联动" },
+  kitty_pillow: { label: "趴在枕头上", how: "术后第 9 天解锁 · Hello Kitty 联动" },
+  // 玲娜贝儿 x 布偶猫
+  linabell_wave: { label: "挥手打招呼", how: "术后第 1 天解锁 · 玲娜贝儿联动" },
+  linabell_cuddle: { label: "贴贴抱抱", how: "术后第 2 天解锁 · 玲娜贝儿联动" },
+  linabell_detective: { label: "小侦探出动", how: "术后第 3 天解锁 · 玲娜贝儿联动" },
+  linabell_nap: { label: "云朵上打盹", how: "术后第 4 天解锁 · 玲娜贝儿联动" },
+  linabell_butterfly: { label: "看蝴蝶", how: "术后第 5 天解锁 · 玲娜贝儿联动" },
+  linabell_tea_party: { label: "蛋糕下午茶", how: "术后第 6 天解锁 · 玲娜贝儿联动" },
+  linabell_kiss: { label: "飞吻给你", how: "术后第 7 天解锁 · 玲娜贝儿联动" },
+  linabell_trip: { label: "出发去城堡", how: "术后第 8 天解锁 · 玲娜贝儿联动" },
+  // 星星人 x 布偶猫
+  starry_stargazing: { label: "一起看星星", how: "术后第 1 天解锁 · 星星人联动" },
+  starry_hug: { label: "抱住你", how: "术后第 2 天解锁 · 星星人联动" },
+  starry_sleep: { label: "睡觉觉", how: "术后第 3 天解锁 · 星星人联动" },
+  starry_star: { label: "送你一颗星", how: "术后第 4 天解锁 · 星星人联动" },
+  starry_box: { label: "纸箱里探头", how: "术后第 5 天解锁 · 星星人联动" },
+  starry_ride: { label: "骑上猫猫", how: "术后第 6 天解锁 · 星星人联动" },
+  starry_sunset: { label: "一起看日落", how: "术后第 7 天解锁 · 星星人联动" },
+  starry_wish: { label: "捧着星星许愿", how: "术后第 8 天解锁 · 星星人联动" },
+  starry_cheer: { label: "开心举手", how: "术后第 9 天解锁 · 星星人联动" },
 };
 
-/** 初始即解锁的贴纸：4 张陪伴贴纸 + 23 张日常表情包 */
+/** 初始即解锁的贴纸：4 张陪伴贴纸 + 23 张日常表情包（联动系列按术后天数逐日解锁） */
 export const STARTER_STICKERS: StickerName[] = [
   "you_are_the_best",
   "cheer_cheer",
