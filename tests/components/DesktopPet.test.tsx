@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { DesktopPet } from "@/components/DesktopPet";
 import { ENCORAGEMENTS } from "@/lib/encouragement";
+import { ALL_CLICK_PHRASES } from "@/lib/petClickPhrases";
 
 vi.useFakeTimers();
 
@@ -33,16 +34,9 @@ describe("DesktopPet", () => {
     fireEvent.pointerDown(pet, { clientX: 10, clientY: 10, pointerId: 1 });
     fireEvent.pointerUp(pet, { clientX: 10, clientY: 10, pointerId: 1 });
     fireEvent.click(pet);
-    const phrases = [
-      "喵～",
-      "蹭蹭你～",
-      "喵嘿嘿！",
-      "最喜欢你啦",
-      "呼噜呼噜…",
-      "摸摸我嘛",
-    ];
     const bubble = screen.getByRole("status");
-    expect(phrases).toContain(bubble.textContent);
+    // 台词从语录池（100+ 条）中随机挑选，只断言属于池内
+    expect(ALL_CLICK_PHRASES).toContain(bubble.textContent);
   });
 
   it("says an encouragement on double click", () => {

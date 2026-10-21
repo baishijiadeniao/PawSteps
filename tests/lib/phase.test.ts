@@ -6,8 +6,16 @@ describe("phase lib", () => {
     expect(getRehabPhase(-1)).toBe("PRE_OP");
   });
 
-  it("POD 0 → EARLY", () => {
-    expect(getRehabPhase(0)).toBe("EARLY");
+  it("POD 0 → WEEK_1 (术后第 1 周)", () => {
+    expect(getRehabPhase(0)).toBe("WEEK_1");
+  });
+
+  it("POD 6 → WEEK_1 (第 1 周上界)", () => {
+    expect(getRehabPhase(6)).toBe("WEEK_1");
+  });
+
+  it("POD 7 → EARLY (第 2 周下界)", () => {
+    expect(getRehabPhase(7)).toBe("EARLY");
   });
 
   it("POD 14 → EARLY (上界)", () => {

@@ -63,7 +63,7 @@ const CHEERS = [
 interface MoodBoardProps {
   /** 页面头部贴纸：服务端每次打开随机挑一张已解锁的 */
   headerSticker: StickerName;
-  /** 五个心情档位的贴纸：服务端按"场景池 ∩ 已解锁"各随机挑一张 */
+  /** 五个心情档位的贴纸：服务端按场景池确定性挑选，图随情绪固定 */
   moodStickers: Record<Mood, StickerName>;
   /** 今天（Asia/Shanghai），服务端用 lib/date.getToday 算好 */
   today: string;
@@ -243,6 +243,8 @@ export function MoodBoard({
                     width={28}
                     height={28}
                     className="object-contain"
+                    /* 同 MoodSelector：锁死盒子高度，避免文字随图片比例错位 */
+                    style={{ width: 28, height: 28 }}
                   />
                   {MOOD_LABEL[h.mood] || h.mood}
                 </span>

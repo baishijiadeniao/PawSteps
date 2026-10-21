@@ -7,7 +7,7 @@ export type MoodValue = "GREAT" | "GOOD" | "OK" | "DOWN" | "ANXIOUS";
 interface MoodSelectorProps {
   selected: string | null;
   onSelect: (mood: MoodValue) => void;
-  /** 每个心情档位对应的贴纸：由服务端每次渲染时从"场景池 ∩ 已解锁"随机挑选 */
+  /** 每个心情档位对应的贴纸：由服务端按场景池确定性挑选（图随情绪固定） */
   stickers: Record<MoodValue, StickerName>;
 }
 
@@ -48,6 +48,9 @@ export function MoodSelector({ selected, onSelect, stickers }: MoodSelectorProps
                 height={52}
                 className="object-contain"
                 draggable={false}
+                /* 贴纸原图宽高比各异，preflight 的 img{height:auto} 会按图缩放，
+                   必须用内联样式锁死盒子，文字才不会跟着图片高低错位 */
+                style={{ width: 52, height: 52 }}
               />
             </span>
             <span className="text-sm font-fun leading-none">{m.label}</span>

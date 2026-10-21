@@ -9,7 +9,7 @@ interface StickerImageProps {
 }
 
 /**
- * 收集册贴纸展示组件：替代登录页 / 打卡页 / 心情页头部的真猫照片。
+ * 收集册贴纸展示组件：替代登录页 / 打卡页 / 心情页 / 日历 / 收集册头部的真猫照片。
  * 外观与 CatMascot 一致（浮动动画 + 不可选中），服务端与客户端组件均可使用。
  */
 export function StickerImage({

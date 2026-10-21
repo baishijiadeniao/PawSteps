@@ -61,4 +61,51 @@ describe("RehabCard", () => {
       screen.getByRole("button", { name: /已打卡/ })
     ).toBeInTheDocument();
   });
+
+  it("多组任务显示组数进度，浮层目标是一组的次数", () => {
+    render(
+      <RehabCard
+        item={
+          {
+            ...mockItem,
+            targetSets: 2,
+            completedSets: 1,
+            completedValue: 30, // 第一组 30 次已练满
+          } as any
+        }
+        onToggle={() => {}}
+        onRecordReps={vi.fn()}
+      />
+    );
+    expect(screen.getByText("组数 1 / 2 · 还差 1 组")).toBeInTheDocument();
+    // 第二组入口
+    fireEvent.click(screen.getByRole("button", { name: /开始第 2 组训练/ }));
+    // 浮层从本组 0 开始数，目标 30 次而不是今日 60 次
+    expect(screen.getByText("第 2 组 0 / 30 次")).toBeInTheDocument();
+  });
+
+  it("单组任务不显示组数行，按钮仍是开始训练", () => {
+    render(
+      <RehabCard
+        item={{ ...mockItem, targetSets: 1 } as any}
+        onToggle={() => {}}
+        onRecordReps={vi.fn()}
+      />
+    );
+    expect(screen.queryByText(/组数/)).toBeNull();
+    expect(screen.getByRole("button", { name: /开始训练/ })).toBeInTheDocument();
+  });
+
+  it("手动打勾的多组任务不再显示\"还差 N 组\"", () => {
+    render(
+      <RehabCard
+        item={{ ...mockItem, targetSets: 2, done: true, completedSets: 0 } as any}
+        onToggle={() => {}}
+        onRecordReps={vi.fn()}
+      />
+    );
+    expect(screen.getByText("组数 2 / 2")).toBeInTheDocument();
+    // 已完成的任务不再提供训练入口
+    expect(screen.queryByRole("button", { name: /组训练/ })).toBeNull();
+  });
 });

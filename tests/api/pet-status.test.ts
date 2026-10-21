@@ -5,7 +5,7 @@ import { GET } from "@/app/api/pet-status/route";
 
 vi.mock("next/headers", () => ({ cookies: vi.fn(), headers: vi.fn() }));
 
-// 固定"今天"为上海时区 2026-09-12（手术日 09-09，术后第 3 天）
+// 固定"今天"为上海时区 2026-09-12（手术日为 09-09，术后第 3 天，WEEK_1 阶段）
 const TODAY = "2026-09-12";
 
 beforeEach(async () => {
@@ -97,7 +97,7 @@ describe("GET /api/pet-status", () => {
     await withOwner();
     const item = await prismaClient.rehabPlanItem.create({
       data: {
-        phase: "EARLY",
+        phase: "WEEK_1",
         name: "踝泵运动",
         description: "防血栓消肿胀",
         category: "exercise",

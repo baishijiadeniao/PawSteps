@@ -15,6 +15,13 @@ export interface StickerRuleInput {
   checkinDates: string[];
   /** 当天"全部康复任务完成"的日期集合 */
   allDoneDates: string[];
+  /**
+   * 单个训练动作"当天全部组数完成"的集合，每项形如 `YYYY-MM-DD|动作名`。
+   * 同一天踝泵和足跟滑动各自做完，就是两条，各攒一张随机奖励额度。
+   */
+  exerciseDoneKeys: string[];
+  /** 主人登录过的日期集合（每天一条，用于随机池奖励） */
+  loginDates: string[];
   /** 保存过心情的日期集合 */
   moodDates: string[];
   /** 完成过每日状态打卡的日期集合 */
@@ -67,19 +74,49 @@ interface StickerRule {
 }
 
 /**
- * 联动系列规则：每个系列每天解锁一张，顺序即 stickerCatalog 里系列数组的顺序。
- *
- * 口径：手术日算术后第 1 天，而 getPostOpDay 在手术日返回 0，
- * 所以第 i 张（0 起）对应 postOpDay >= i。
- * 每个系列的第 1 张是保底贴纸，术前几天也直接解锁，不等手术日。
+ * 联动系列里每个系列的第 1 张是保底贴纸，术前几天也直接解锁，不等任何行为。
  */
-const LINK_RULES: StickerRule[] = LINK_SERIES.flatMap((series) =>
-  series.map((sticker, i) => ({
-    sticker,
-    reason: i === 0 ? "联动系列首张贴纸" : `到达术后第 ${i + 1} 天`,
-    satisfied: (c: { postOpDay: number }) => i === 0 || c.postOpDay >= i,
-  }))
+const GUARANTEED_STICKERS: StickerName[] = LINK_SERIES.map(
+  (series) => series[0]
 );
+
+/**
+ * 共享随机奖励池：剩下的联动贴纸（每个系列的第 2～9 张）。
+ * "登录" / "全部完成" / "单个动作全组完成" 三类行为不再分别对应固定贴纸，
+ * 而是攒成同一个抽取额度，每攒够一次就从池子里随机抽一张，抽过的不会重复抽。
+ */
+const REWARD_POOL: StickerName[] = LINK_SERIES.flat().filter(
+  (sticker) => !GUARANTEED_STICKERS.includes(sticker)
+);
+
+/** 随机池贴纸的解锁原因文案（同时写入 StickerUnlock.reason 与收集册展示） */
+export const REWARD_REASON = "每天登录或完成康复任务，随机掉落的奖励";
+
+/** 保底规则：系列首张一上线就解锁 */
+const GUARANTEED_RULES: StickerRule[] = GUARANTEED_STICKERS.map((sticker) => ({
+  sticker,
+  reason: "联动系列首张贴纸",
+  satisfied: () => true,
+}));
+
+/**
+ * 从池子里随机抽 count 张（不重复）。
+ * rand 可注入，便于单测里断言确定性的抽取结果。
+ */
+export function drawFromPool(
+  pool: StickerName[],
+  count: number,
+  rand: () => number = Math.random
+): StickerName[] {
+  const rest = [...pool];
+  const drawn: StickerName[] = [];
+  const total = Math.min(count, rest.length);
+  for (let i = 0; i < total; i++) {
+    const idx = Math.min(Math.floor(rand() * rest.length), rest.length - 1);
+    drawn.push(rest.splice(idx, 1)[0]);
+  }
+  return drawn;
+}
 
 const RULES: StickerRule[] = [
   {
@@ -142,14 +179,20 @@ const RULES: StickerRule[] = [
     reason: "到达术后第 90 天",
     satisfied: (c) => c.postOpDay >= 90,
   },
-  ...LINK_RULES,
+  ...GUARANTEED_RULES,
 ];
 
 /**
  * 评估所有规则，返回"本次新解锁"的贴纸列表。
  * alreadyUnlocked 里的贴纸（含初始 4 张）会被跳过。
+ *
+ * 随机池的抽取额度 = 累计登录天数 + 累计全部完成天数 + 累计单动作全完成次数，
+ * 再减去池子里已经解锁的张数，所以补记历史行为只会补发差额，不会重复发。
  */
-export function evaluateUnlocks(input: StickerRuleInput): UnlockResult[] {
+export function evaluateUnlocks(
+  input: StickerRuleInput,
+  rand: () => number = Math.random
+): UnlockResult[] {
   const ctx = {
     checkinCount: new Set(input.checkinDates).size,
     allDoneCount: new Set(input.allDoneDates).size,
@@ -159,6 +202,8 @@ export function evaluateUnlocks(input: StickerRuleInput): UnlockResult[] {
     moodStreak: computeStreak(input.moodDates, input.today),
     postOpDay: getPostOpDay(input.today, input.surgeryDate),
   };
+  const loginCount = new Set(input.loginDates).size;
+  const exerciseCount = new Set(input.exerciseDoneKeys).size;
   const unlockedSet = new Set(input.alreadyUnlocked);
   const results: UnlockResult[] = [];
   for (const rule of RULES) {
@@ -166,6 +211,16 @@ export function evaluateUnlocks(input: StickerRuleInput): UnlockResult[] {
     if (rule.satisfied(ctx)) {
       results.push({ sticker: rule.sticker, reason: rule.reason });
     }
+  }
+
+  const earned = REWARD_POOL.filter((s) => unlockedSet.has(s)).length;
+  const budget = Math.max(
+    0,
+    loginCount + ctx.allDoneCount + exerciseCount - earned
+  );
+  const candidates = REWARD_POOL.filter((s) => !unlockedSet.has(s));
+  for (const sticker of drawFromPool(candidates, budget, rand)) {
+    results.push({ sticker, reason: REWARD_REASON });
   }
   return results;
 }

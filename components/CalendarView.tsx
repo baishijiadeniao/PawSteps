@@ -350,6 +350,7 @@ export function CalendarView({ surgeryDate }: { surgeryDate: string }) {
       {showForm && (
         <div className="mt-4">
           <TimelineForm
+            defaultDate={selected ?? today}
             onAdded={() => {
               load(month);
               setShowForm(false);

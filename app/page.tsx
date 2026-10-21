@@ -5,6 +5,9 @@ import { getEncouragement } from "@/lib/encouragement";
 import { CatMascot, type CatMood } from "@/components/CatMascot";
 import { EncouragementTypewriter } from "@/components/EncouragementTypewriter";
 
+// 首页显示每日心情和打卡进度，必须每次请求时重新渲染
+export const dynamic = "force-dynamic";
+
 const MOOD_LABEL: Record<string, { catMood: CatMood; label: string }> = {
   GREAT: { catMood: "GREAT", label: "棒极了" },
   GOOD: { catMood: "GOOD", label: "还不错" },
@@ -19,20 +22,24 @@ export default async function Home() {
   const phase = getRehabPhase(pod);
   const encouragement = getEncouragement(today);
 
-  // 今日心情（简略，公开：仅 emoji + label）
-  const todayMood = await prismaClient.moodLog.findUnique({
-    where: { date: today },
-    select: { mood: true },
-  });
-
-  // 今日康复进度（只显示完成数，不显示具体动作）
-  const items = await prismaClient.rehabPlanItem.findMany({
-    where: { phase },
-    select: { id: true },
-  });
-  const doneLogs = await prismaClient.rehabLog.count({
-    where: { date: today, done: true },
-  });
+  // 三个查询互相独立，并行发出
+  const [
+    todayMood, // 今日心情（简略，公开：仅 emoji + label）
+    items, // 今日康复计划动作
+    doneLogs, // 今日已完成数
+  ] = await Promise.all([
+    prismaClient.moodLog.findUnique({
+      where: { date: today },
+      select: { mood: true },
+    }),
+    prismaClient.rehabPlanItem.findMany({
+      where: { phase },
+      select: { id: true },
+    }),
+    prismaClient.rehabLog.count({
+      where: { date: today, done: true },
+    }),
+  ]);
 
   return (
     <main className="min-h-screen px-4 py-6 max-w-lg mx-auto">

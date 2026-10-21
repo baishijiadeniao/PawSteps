@@ -1,77 +1,36 @@
-"use client";
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { LoginForm } from "@/components/LoginForm";
+import { StickerImage } from "@/components/StickerImage";
+import { getUnlockedNames } from "@/lib/stickerService";
+import { pickAnyUnlocked } from "@/lib/stickerPop";
 
-export default function LoginPage() {
-  const router = useRouter();
-  const params = useSearchParams();
-  const from = params.get("from") || "/rehab";
-  const [code, setCode] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ code }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        router.push(from);
-        router.refresh();
-      } else {
-        setError(data.error || "登录失败");
-      }
-    } catch {
-      setError("网络错误，请重试");
-    } finally {
-      setLoading(false);
-    }
-  }
+/**
+ * 主人登录页（服务端外壳）：
+ * 头部原来是真猫照片 peek.png，现在每次打开随机展示一张收集册已解锁贴纸。
+ * 读取页面的 searchParams 会让本页按请求动态渲染（Next 官方推荐用法），
+ * 因此无需额外声明动态渲染，随机挑选在服务端完成，不存在水合不一致。
+ */
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const from =
+    typeof params.from === "string" && params.from ? params.from : "/rehab";
+  const unlocked = await getUnlockedNames();
 
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-sm card-soft bg-white rounded-3xl p-6 pb-8">
         <div className="text-center mb-8">
-          {/* 十一从上方倒挂偷看 */}
+          {/* 每次打开随机换一张已解锁贴纸 */}
           <div className="flex justify-center mb-3 -mt-2">
-            <img
-              src="/cats/peek.png"
-              alt="十一倒挂偷看"
-              width={120}
-              draggable={false}
-              className="select-none animate-float"
-              style={{ width: 120, height: "auto" }}
-            />
+            <StickerImage name={pickAnyUnlocked(unlocked)} size={120} />
           </div>
           <h1 className="text-3xl font-fun">十一的康复小窝</h1>
           <p className="text-sm mt-2 opacity-70">请输入访问码</p>
         </div>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <input
-            type="password"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="访问码"
-            className="w-full px-5 py-3 rounded-full border-2 border-peach bg-white text-cocoa placeholder:text-cocoa/35 focus:outline-none focus:border-ragdoll transition-colors"
-            autoFocus
-          />
-          {error && (
-            <p className="text-sm text-red-500 text-center">{error}</p>
-          )}
-          <button
-            type="submit"
-            disabled={loading || !code}
-            className="w-full py-3 rounded-2xl bg-ragdoll text-white font-medium disabled:opacity-50"
-          >
-            {loading ? "登录中…" : "进入小窝"}
-          </button>
-        </form>
+        <LoginForm from={from} />
       </div>
     </main>
   );

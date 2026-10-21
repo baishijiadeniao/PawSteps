@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { attemptLogin, SESSION_COOKIE } from "@/lib/auth";
+import { attemptLogin, isHttps, SESSION_COOKIE } from "@/lib/auth";
+import { recordLoginToday } from "@/lib/dailyLogin";
 import { loginSchema } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
@@ -18,10 +19,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: result.error }, { status });
   }
 
+  // 记账用，失败不该拦住登录；贴纸奖励由规则引擎在访问收集册时结算
+  await recordLoginToday().catch(() => false);
+
   const res = NextResponse.json({ success: true });
   res.cookies.set(SESSION_COOKIE, result.token!, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isHttps(req),
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7, // 7 天

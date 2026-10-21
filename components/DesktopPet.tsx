@@ -3,7 +3,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatedCat, PET_POSES, type PetPose, type PetShadow } from "./AnimatedCat";
 import { useConfetti, ConfettiOverlay } from "./ConfettiBurst";
 import { ENCORAGEMENTS } from "@/lib/encouragement";
+import { PET_CLICK_REACTIONS } from "@/lib/petClickPhrases";
 import { ALL_DONE_EVENT } from "@/lib/stickerPop";
+import { NEW_LETTER_EVENT, type NewLetterDetail } from "@/lib/letterEvent";
 import type { PetMood } from "@/lib/stickerService";
 
 const POS_KEY = "desktop-pet-pos";
@@ -16,15 +18,6 @@ const HYPER_SIT_POSES: PetPose[] = ["tilt", "look", "giggle", "content", "wave",
 const DROOPY_SIT_POSES: PetPose[] = ["loaf", "sidesit", "sit"];
 /** 走路时交替的两张站姿 */
 const WALK_POSES: PetPose[] = ["standwave", "dance"];
-
-const CLICK_REACTIONS: { pose: PetPose; phrase: string }[] = [
-  { pose: "wave", phrase: "喵～" },
-  { pose: "content", phrase: "蹭蹭你～" },
-  { pose: "giggle", phrase: "喵嘿嘿！" },
-  { pose: "heart", phrase: "最喜欢你啦" },
-  { pose: "loaf", phrase: "呼噜呼噜…" },
-  { pose: "roll", phrase: "摸摸我嘛" },
-];
 
 const IDLE_PHRASES = [
   "喵？",
@@ -184,6 +177,28 @@ export function DesktopPet() {
       void refreshStatus(); // 庆祝完可能刚凑出新连胜，刷新情绪
     }, acc);
   }, [fire, later, refreshStatus, showBubble]);
+
+  /** 收到"新来信"广播：比心姿势 + 冒泡报送信人（被拎走时只冒泡不变姿势） */
+  const deliverLetter = useCallback(
+    (e: Event) => {
+      const detail = (e as CustomEvent<NewLetterDetail>).detail;
+      lastInteract.current = Date.now();
+      const message = `${detail?.nickname ?? "有人"} 送信来啦 💌`;
+      if (behaviorRef.current !== "carried") {
+        setPose("heart");
+        setAnim("animate-pet-wiggle");
+        fire();
+        settle(3200);
+      }
+      showBubble(message, 3600);
+    },
+    [fire, settle, showBubble]
+  );
+
+  useEffect(() => {
+    window.addEventListener(NEW_LETTER_EVENT, deliverLetter);
+    return () => window.removeEventListener(NEW_LETTER_EVENT, deliverLetter);
+  }, [deliverLetter]);
 
   // 卸载时清理所有计时器
   useEffect(() => {
@@ -356,11 +371,11 @@ export function DesktopPet() {
       showBubble("喵呜…刚睡着嘛");
       return;
     }
-    const r = pick(CLICK_REACTIONS);
+    const r = pick(PET_CLICK_REACTIONS);
     setPose(r.pose);
     setAnim(pick(["animate-pet-wiggle", "animate-pet-hop"]));
     fire();
-    showBubble(r.phrase);
+    showBubble(pick(r.phrases));
     settle();
   }
 

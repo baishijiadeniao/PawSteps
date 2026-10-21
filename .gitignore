@@ -46,3 +46,8 @@ prisma/dev.db-journal
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 本地素材与临时脚本（原始大图 / 一次性探针脚本 / Python 缓存）
+__pycache__/
+/picture/
+/tmp/

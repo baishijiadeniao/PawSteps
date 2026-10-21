@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource/zcool-kuaile/index.css";
 import "./globals.css";
-import { DesktopPet } from "@/components/DesktopPet";
-import { StickerPopup } from "@/components/StickerPopup";
 
 export const metadata: Metadata = {
   title: "十一的康复小窝",
@@ -25,8 +23,6 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className="min-h-screen bg-cream text-cocoa">
         {children}
-        <StickerPopup />
-        <DesktopPet />
       </body>
     </html>
   );

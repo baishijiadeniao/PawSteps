@@ -8,10 +8,12 @@ datasource db {
 }
 
 model Session {
-  id        String   @id @default(cuid())
-  tokenHash String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  tokenHash   String   @unique
+  role        String   @default("owner") // "owner" | "companion"
+  companionId String?                    // role=companion 时对应的陪伴者 id
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
 
   @@index([tokenHash])
 }
@@ -27,10 +29,11 @@ model LoginAttempt {
 model RehabPlanItem {
   id              String   @id @default(cuid())
 
-  phase           String   // "PRE_OP" | "EARLY" | "MID" | "LATE"
+  phase           String   // "PRE_OP" | "WEEK_1" | "EARLY" | "MID" | "LATE"
   name            String
   description     String
   category        String   // "exercise" | "scar" | "care"
+  timeOfDay       String?  // 时段分组展示："早晨" | "上午" | "中午" | "下午" | "晚上"
 
   targetValue     Int?
   targetUnit      String?
@@ -101,6 +104,12 @@ model DailyStatus {
   updatedAt   DateTime @updatedAt
 }
 
+model DailyLogin {
+  id      String   @id @default(cuid())
+  date    String   @unique // 主人当天首次到访的日期（YYYY-MM-DD）
+  loginAt DateTime @default(now())
+}
+
 model Message {
   id          String   @id @default(cuid())
 
@@ -142,4 +151,48 @@ model StickerUnlock {
   sticker    String   @unique // 贴纸文件名（public/stickers/xxx.png 的 xxx）
   reason     String            // 解锁原因文案
   unlockedAt DateTime @default(now())
+}
+
+model Companion {
+  id         String    @id @default(cuid())
+  nickname   String                  // 病人起的称呼，如"妈妈"
+  inviteCode String    @unique       // 8 位大写字母数字邀请码
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime?               // 最近一次访问时间
+
+  messages   CompanionMessage[]
+}
+
+model CompanionMessage {
+  id          String    @id @default(cuid())
+  companionId String
+  content     String                  // 鼓励正文（≤200 字）
+  emoji       String?                 // 可选：附带的贴纸表情名
+  createdAt   DateTime  @default(now())
+  readAt      DateTime?               // 病人已读时间（桌宠送信判定依据）
+
+  companion   Companion @relation(fields: [companionId], references: [id], onDelete: Cascade)
+
+  @@index([readAt])
+  @@index([createdAt])
+}
+
+model Wish {
+  id          String    @id @default(cuid())
+  streakDays  Int                   // 获得时达成的连续打卡天数里程碑（7/14/21…）
+  content     String?               // 愿望内容（赢得后尚未填写为 null）
+  status      String    @default("EARNED") // EARNED 已赢得未填写 | WAITING 等待实现 | DONE 已实现
+  createdAt   DateTime  @default(now())
+  fulfilledAt DateTime?             // 标记已实现的时间
+
+  @@index([status])
+}
+
+model RehabLike {
+  id          String   @id @default(cuid())
+  logId       String               // 被点赞的 RehabLog
+  companionId String               // 点赞的陪伴者（同一人对同一条只能点一次）
+  createdAt   DateTime @default(now())
+
+  @@unique([logId, companionId])
 }

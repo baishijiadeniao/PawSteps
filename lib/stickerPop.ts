@@ -45,7 +45,7 @@ export const ALL_STICKERS = [
   "drink_water",
   "take_medicine",
   "rest_well",
-  // picture/2 两张表情表切出的 23 张日常贴纸（收集册里开箱即用）
+  // picture/2 首批两张表情表切出的 23 张日常贴纸（收集册里开箱即用）
   "big_hug",
   "peace_yeah",
   "good_night",
@@ -69,7 +69,26 @@ export const ALL_STICKERS = [
   "night_cuddle",
   "too_cute",
   "cool_enough",
-  // picture/联动 三张 3x3 联动表切出的 26 张贴纸（每个术后日解锁一张）
+  // picture/2 新增两张九宫格切出的 18 张贴纸（满版漫画分格，切成圆角方卡）
+  "good_day_stretch",
+  "thumb_up_wink",
+  "grumpy_stare",
+  "fish_playmate",
+  "loaf_sleep",
+  "oh_really",
+  "shades_cool",
+  "fluffy_back",
+  "my_box",
+  "baby_kiss",
+  "belly_nap",
+  "yeah_good_day",
+  "posh_sit",
+  "blanket_peek",
+  "king_home",
+  "sleep_hugging",
+  "question_ears",
+  "always_together",
+  // picture/联动 八张 3x3 联动表切出的 71 张贴纸（每个术后日解锁一张）
   "kitty_heart",
   "kitty_hug",
   "kitty_laptop",
@@ -96,6 +115,56 @@ export const ALL_STICKERS = [
   "starry_sunset",
   "starry_wish",
   "starry_cheer",
+  // 樱桃小丸子 x 布偶猫
+  "maruko_hug",
+  "maruko_butterfly",
+  "maruko_jump",
+  "maruko_draw",
+  "maruko_outing",
+  "maruko_sleep",
+  "maruko_icecream",
+  "maruko_bush",
+  "maruko_cake",
+  // 星黛露 x 布偶猫
+  "stellalou_hug",
+  "stellalou_flowerbed",
+  "stellalou_tea",
+  "stellalou_cuddle",
+  "stellalou_tent",
+  "stellalou_walk",
+  "stellalou_magic",
+  "stellalou_cloud",
+  "stellalou_basket",
+  // 可琦安 x 布偶猫
+  "cookieann_hug",
+  "cookieann_cuddle",
+  "cookieann_cookie",
+  "cookieann_grass",
+  "cookieann_icecream",
+  "cookieann_picnic",
+  "cookieann_nap",
+  "cookieann_photo",
+  "cookieann_petal",
+  // 达菲 x 布偶猫
+  "duffy_hug",
+  "duffy_mat",
+  "duffy_school",
+  "duffy_sandcastle",
+  "duffy_sleep",
+  "duffy_flowers",
+  "duffy_pounce",
+  "duffy_sunset",
+  "duffy_teacup",
+  // 玲娜贝儿四季 x 布偶猫
+  "linabell_sprout",
+  "linabell_rain",
+  "linabell_radish",
+  "linabell_lotus",
+  "linabell_watermelon",
+  "linabell_lily",
+  "linabell_maple",
+  "linabell_snowball",
+  "linabell_snowman",
 ] as const;
 
 export type StickerName = (typeof ALL_STICKERS)[number];
@@ -145,6 +214,22 @@ export function pickSticker(
   const filtered = pool.filter((s) => unlocked.includes(s));
   const source = filtered.length > 0 ? filtered : unlocked;
   return source[Math.floor(Math.random() * source.length)];
+}
+
+/**
+ * 从场景贴纸池里确定性地挑一张：取池内（按情绪契合度排序）第一张已解锁的。
+ * 用于心情档位按钮等需要"图随情绪固定"的位置，避免每次渲染随机跳变。
+ */
+export function pickStickerStable(
+  scene: StickerScene,
+  unlocked?: StickerName[] | null
+): StickerName {
+  const pool = STICKER_POOLS[scene];
+  if (unlocked) {
+    const first = pool.find((s) => unlocked.includes(s));
+    if (first) return first;
+  }
+  return pool[0];
 }
 
 /** 贴纸的静态资源路径 */

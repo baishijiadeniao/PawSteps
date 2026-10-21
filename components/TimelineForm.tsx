@@ -9,8 +9,15 @@ const TYPES = [
   { value: "NOTE", label: "📝 备注" },
 ];
 
-export function TimelineForm({ onAdded }: { onAdded: () => void }) {
-  const [date, setDate] = useState("");
+export function TimelineForm({
+  defaultDate,
+  onAdded,
+}: {
+  defaultDate: string;
+  onAdded: () => void;
+}) {
+  // 日期框默认填入日历选中的那天（无选中则为今天），避免打开表单是一片空白
+  const [date, setDate] = useState(defaultDate);
   const [type, setType] = useState("FOLLOW_UP");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -30,7 +37,7 @@ export function TimelineForm({ onAdded }: { onAdded: () => void }) {
       }),
     });
     if (res.ok) {
-      setDate("");
+      setDate(defaultDate);
       setTitle("");
       setDescription("");
       onAdded();
